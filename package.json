@@ -1,0 +1,12 @@
+{
+  "name": "chicken-saga-proxy",
+  "version": "1.0.0",
+  "description": "CORS proxy for Chicken Saga Market Tracker",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
