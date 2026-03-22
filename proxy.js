@@ -1,6 +1,4 @@
 // Chicken Saga Market Proxy — Railway edition
-// No npm install needed, uses only Node.js built-ins
-
 const http = require('http');
 const https = require('https');
 
@@ -66,14 +64,30 @@ const server = http.createServer(async (req, res) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'User-Agent': 'ChickenSagaTracker/1.0',
+          'User-Agent': 'Mozilla/5.0 (compatible; ChickenSagaTracker/1.0)',
+          'Origin': 'https://marketplace.roninchain.com',
+          'Referer': 'https://marketplace.roninchain.com/',
         },
       };
       if (body) options.headers['Content-Length'] = Buffer.byteLength(body);
+
+      // Log the request body for debugging
+      if (body && targetUrl.hostname === 'marketplace-graphql.skymavis.com') {
+        try {
+          const parsed = JSON.parse(body);
+          console.log(`[GQL] op=${parsed.operationName} vars=${JSON.stringify(parsed.variables)}`);
+        } catch(_) {}
+      }
+
       const upstream = await fetchUpstream(options, body || null);
+
+      // Log first 300 chars of response for debugging
+      console.log(`[${upstream.status}] ${targetUrl.hostname}${targetUrl.pathname} → ${upstream.body.slice(0,300)}`);
+
       res.writeHead(upstream.status, { 'Content-Type': 'application/json' });
       res.end(upstream.body);
     } catch (err) {
+      console.error('Upstream error:', err.message);
       res.writeHead(502, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));
     }
