@@ -6,6 +6,8 @@ const PORT = process.env.PORT || 3333;
 
 const ALLOWED_HOSTS = [
   'marketplace-graphql.skymavis.com',
+  'marketplace.roninchain.com',
+  'api.skymavis.com',
   'api.geckoterminal.com',
   'api.coingecko.com',
 ];
@@ -71,18 +73,8 @@ const server = http.createServer(async (req, res) => {
       };
       if (body) options.headers['Content-Length'] = Buffer.byteLength(body);
 
-      // Log the request body for debugging
-      if (body && targetUrl.hostname === 'marketplace-graphql.skymavis.com') {
-        try {
-          const parsed = JSON.parse(body);
-          console.log(`[GQL] op=${parsed.operationName} vars=${JSON.stringify(parsed.variables)}`);
-        } catch(_) {}
-      }
-
       const upstream = await fetchUpstream(options, body || null);
-
-      // Log first 300 chars of response for debugging
-      console.log(`[${upstream.status}] ${targetUrl.hostname}${targetUrl.pathname} → ${upstream.body.slice(0,300)}`);
+      console.log(`[${upstream.status}] ${targetUrl.hostname}${targetUrl.pathname} → ${upstream.body.slice(0,200)}`);
 
       res.writeHead(upstream.status, { 'Content-Type': 'application/json' });
       res.end(upstream.body);
